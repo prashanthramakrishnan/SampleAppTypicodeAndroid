@@ -1,6 +1,7 @@
 package com.prashanth.sampleapp.dependencyInjection
 
 import com.prashanth.sampleapp.presenter.UserModelPresenterImpl
+import com.prashanth.sampleapp.presenter.UserModelSearchPresenterImpl
 import com.prashanth.sampleapp.ui.MainActivity
 import dagger.Component
 import javax.inject.Singleton
@@ -10,4 +11,5 @@ import javax.inject.Singleton
 interface AppDaggerGraph {
     fun inject(target: MainActivity)
     fun inject(sampleResultsPresenterImpl: UserModelPresenterImpl)
+    fun inject(searchPresenterImpl: UserModelSearchPresenterImpl)
 }

@@ -18,6 +18,11 @@ interface APIContract {
         fun onResponse(userModelList: ArrayList<UserModel>)
     }
 
+    interface UserModelSearchFilterView : View {
+
+        fun onFilter(userModelList: ArrayList<UserModel>)
+    }
+
     interface Presenter {
 
         fun onDestroy()
@@ -26,6 +31,15 @@ interface APIContract {
     interface UserModelPresenter : Presenter {
 
         fun fetchSampleResults(view: UserModelListView)
+    }
+
+    interface UserModelSearchPresenter : Presenter {
+
+        fun filterTitleResults(
+            searchString: String,
+            userModelList: ArrayList<UserModel>,
+            view: UserModelSearchFilterView
+        )
     }
 
 }

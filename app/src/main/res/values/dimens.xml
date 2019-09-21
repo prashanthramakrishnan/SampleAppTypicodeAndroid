@@ -3,4 +3,6 @@
     <dimen name="margin5dp">5dp</dimen>
     <dimen name="textSize18sp">18sp</dimen>
     <dimen name="textSize16sp">16sp</dimen>
+    <dimen name="search_view_padding">45dp</dimen>
+    <dimen name="search_text_size">15sp</dimen>
 </resources>
