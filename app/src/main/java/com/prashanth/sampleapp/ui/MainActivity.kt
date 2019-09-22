@@ -24,7 +24,6 @@ import kotlinx.android.synthetic.main.activity_main.*
 import java.util.*
 import javax.inject.Inject
 
-
 class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
     OnRefreshListener, TextView.OnEditorActionListener, APIContract.UserModelSearchFilterView,
     UserModelListAdapter.OnItemClickListener, UserModelListAdapter.OnItemLongClickListener {
@@ -38,7 +37,9 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
     @Inject
     lateinit var adapter: UserModelListAdapter
 
-    private lateinit var userModelList: ArrayList<UserModel>
+    private lateinit var userModelListFromAPI: ArrayList<UserModel>
+
+    private lateinit var userModelListFromFilter: ArrayList<UserModel>
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,9 +48,11 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
 
         search_edittext.setOnEditorActionListener(this)
         swipe_refresh_layout.setOnRefreshListener(this)
+
         recycler_view.layoutManager = LinearLayoutManager(this)
         recycler_view.adapter = adapter
         adapter.setOnItemClickListener(this, this)
+
         userModelPresenterImpl.fetchSampleResults(this)
     }
 
@@ -71,7 +74,7 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
     }
 
     override fun onAPIResponse(userModelList: ArrayList<UserModel>) {
-        this.userModelList = userModelList
+        this.userModelListFromAPI = userModelList
         adapter.update(userModelList)
     }
 
@@ -80,7 +83,7 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
             showSnackBarErrorMessage(resources.getString(R.string.no_results_found))
             return
         }
-        this.userModelList = userModelList
+        this.userModelListFromFilter = userModelList
         adapter.update(userModelList)
     }
 
@@ -89,14 +92,21 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
     }
 
     override fun onItemLongClick(item: UserModel) {
-        showAlertDialog(item, true)
+        showAlertDialog(
+            item,
+            true
+        )
     }
 
     override fun onEditorAction(v: TextView?, actionId: Int, event: KeyEvent?): Boolean {
         if (actionId == EditorInfo.IME_ACTION_SEARCH) {
             val searchString = v!!.text.toString()
-            if (searchString.isNotEmpty()) {
-                onSearchClicked(searchString.toLowerCase(Locale.US))
+            when {
+                searchString.isNotEmpty() -> onSearchClicked(searchString.toLowerCase(Locale.US))
+                else -> {
+                    hideKeyboard()
+                    adapter.update(userModelListFromAPI)
+                }
             }
             return true
         }
@@ -105,7 +115,7 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
 
     private fun onSearchClicked(searchString: String) {
         hideKeyboard()
-        searchPresenterImpl.filterTitleResults(searchString, userModelList, this)
+        searchPresenterImpl.filterTitleResults(searchString, userModelListFromAPI, this)
     }
 
     private fun showSnackBarErrorMessage(error: String) {
@@ -137,12 +147,15 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
             )
         }
         alertDialog.setCancelable(false)
-        alertDialog.setPositiveButton(
-            resources.getString(R.string.ok)
-        ) { dialog, _ ->
+        alertDialog.setPositiveButton(resources.getString(R.string.ok)) { dialog, _ ->
             when {
                 shouldDelete -> {
-                    userModelList.remove(item)
+                    userModelListFromAPI.remove(item)
+                    when {
+                        ::userModelListFromFilter.isInitialized -> userModelListFromFilter.remove(
+                            item
+                        )
+                    }
                     adapter.notifyDataSetChanged()
                     dialog.cancel()
                 }
