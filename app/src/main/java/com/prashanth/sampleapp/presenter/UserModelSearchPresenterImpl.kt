@@ -30,10 +30,11 @@ class UserModelSearchPresenterImpl : APIContract.UserModelSearchPresenter {
     ) {
         this.view = view
         this.userModelList = userModelList
+
         val monthList: List<UserModel> =
             userModelList.filter { userModel -> userModel.title.toLowerCase(Locale.US).contains(searchString) }
 
-        this.view.onFilter(monthList as ArrayList<UserModel>)
+        this.view.onFilterApplied(monthList as ArrayList<UserModel>)
     }
 
     override fun onDestroy() {

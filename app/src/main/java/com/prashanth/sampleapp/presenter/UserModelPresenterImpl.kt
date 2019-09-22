@@ -44,7 +44,7 @@ class UserModelPresenterImpl : APIContract.UserModelPresenter {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribeWith(object : DisposableObserver<ArrayList<UserModel>>() {
                 override fun onNext(response: ArrayList<UserModel>) {
-                    view.onResponse(response)
+                    view.onAPIResponse(response)
                 }
 
                 override fun onError(e: Throwable) {

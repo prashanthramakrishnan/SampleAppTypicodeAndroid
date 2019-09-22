@@ -15,12 +15,12 @@ interface APIContract {
 
     interface UserModelListView : View {
 
-        fun onResponse(userModelList: ArrayList<UserModel>)
+        fun onAPIResponse(userModelList: ArrayList<UserModel>)
     }
 
     interface UserModelSearchFilterView : View {
 
-        fun onFilter(userModelList: ArrayList<UserModel>)
+        fun onFilterApplied(userModelList: ArrayList<UserModel>)
     }
 
     interface Presenter {

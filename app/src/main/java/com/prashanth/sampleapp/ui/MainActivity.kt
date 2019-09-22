@@ -50,6 +50,7 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
         recycler_view.layoutManager = LinearLayoutManager(this)
         recycler_view.adapter = adapter
         adapter.setOnItemClickListener(this, this)
+        userModelPresenterImpl.fetchSampleResults(this)
     }
 
     override fun onRefresh() {
@@ -69,12 +70,16 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
         showSnackBarErrorMessage(Utils.getErrorString(this, statusCode))
     }
 
-    override fun onResponse(userModelList: ArrayList<UserModel>) {
+    override fun onAPIResponse(userModelList: ArrayList<UserModel>) {
         this.userModelList = userModelList
         adapter.update(userModelList)
     }
 
-    override fun onFilter(userModelList: ArrayList<UserModel>) {
+    override fun onFilterApplied(userModelList: ArrayList<UserModel>) {
+        if (userModelList.isEmpty()) {
+            showSnackBarErrorMessage(resources.getString(R.string.no_results_found))
+            return
+        }
         this.userModelList = userModelList
         adapter.update(userModelList)
     }
@@ -92,7 +97,6 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
             val searchString = v!!.text.toString()
             if (searchString.isNotEmpty()) {
                 onSearchClicked(searchString.toLowerCase(Locale.US))
-
             }
             return true
         }
@@ -123,20 +127,26 @@ class MainActivity : AppCompatActivity(), APIContract.UserModelListView,
     private fun showAlertDialog(item: UserModel, shouldDelete: Boolean) {
         val alertDialog = AlertDialog.Builder(this)
         alertDialog.setTitle(resources.getString(R.string.app_name))
-        if (shouldDelete) {
-            alertDialog.setMessage(resources.getString(R.string.delete_post))
-        } else {
-            alertDialog.setMessage(resources.getString(R.string.post_id, item.id.toString()))
+        when {
+            shouldDelete -> alertDialog.setMessage(resources.getString(R.string.delete_post))
+            else -> alertDialog.setMessage(
+                resources.getString(
+                    R.string.post_id,
+                    item.id.toString()
+                )
+            )
         }
         alertDialog.setCancelable(false)
         alertDialog.setPositiveButton(
-            resources.getString(R.string.ok)) { dialog, _ ->
-            if (shouldDelete) {
-                userModelList.remove(item)
-                adapter.notifyDataSetChanged()
-                dialog.cancel()
-            } else {
-                dialog.cancel()
+            resources.getString(R.string.ok)
+        ) { dialog, _ ->
+            when {
+                shouldDelete -> {
+                    userModelList.remove(item)
+                    adapter.notifyDataSetChanged()
+                    dialog.cancel()
+                }
+                else -> dialog.cancel()
             }
         }
         alertDialog.setNegativeButton(resources.getString(R.string.cancel))

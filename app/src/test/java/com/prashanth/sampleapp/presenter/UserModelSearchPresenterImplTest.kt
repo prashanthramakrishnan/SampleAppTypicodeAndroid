@@ -1,12 +1,14 @@
 package com.prashanth.sampleapp.presenter
 
+import com.nhaarman.mockitokotlin2.argumentCaptor
+import com.nhaarman.mockitokotlin2.verify
 import com.prashanth.sampleapp.contracts.APIContract
 import com.prashanth.sampleapp.model.UserModel
+import junit.framework.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mock
-import org.mockito.Mockito
 import org.mockito.Mockito.times
 import org.mockito.MockitoAnnotations
 import org.mockito.junit.MockitoJUnitRunner
@@ -17,8 +19,6 @@ class UserModelSearchPresenterImplTest {
     @Mock
     private lateinit var view: APIContract.UserModelSearchFilterView
 
-    private var searchString: String = "title1"
-
     companion object {
         @Before
         @Throws(Exception::class)
@@ -27,18 +27,25 @@ class UserModelSearchPresenterImplTest {
         }
     }
 
-    private fun <T> any(): T {
-        Mockito.any<T>()
-        return uninitialized()
+    @Test
+    fun whenSearchStringIsPresentInTheList() {
+        val presenter = UserModelSearchPresenterImpl("title1")
+        presenter.filterTitleResults("title1", userModelList(), view)
+        argumentCaptor<ArrayList<UserModel>>().apply {
+            verify(view, times(1)).onFilterApplied(capture())
+            assertEquals(1, allValues.size)
+            assertEquals("Some random title1", allValues[0][0].title)
+        }
     }
 
-    private fun <T> uninitialized(): T = null as T
-
     @Test
-    fun getDataAndLoadView() {
-        val presenter = UserModelSearchPresenterImpl(searchString)
-        presenter.filterTitleResults(searchString, userModelList(), view)
-        Mockito.verify(view, times(1)).onFilter(any())
+    fun whenSearchStringIsNotPresentInTheList() {
+        val presenter = UserModelSearchPresenterImpl("ok")
+        presenter.filterTitleResults("ok", userModelList(), view)
+        argumentCaptor<ArrayList<UserModel>>().apply {
+            verify(view, times(1)).onFilterApplied(capture())
+            assertEquals(0, allValues[0].size)
+        }
     }
 
 
