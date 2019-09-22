@@ -8,6 +8,7 @@ SampleAppWithTypicode
 - Fetches the data from the provided [API](https://jsonplaceholder.typicode.com/posts) and shows the list in a recycler view.
 - Swipe to refresh fetches data from the network again.
 - List contains title and body fetched from the API.
+- Search functionality is provided, the search is done only on the title text and not on the body.
 - Clicking on the list shows the post ID.
 - Long clicking on the list shows a dialog with which the post can be deleted locally.
 - There is no storage in the application, everything is live via the network.
