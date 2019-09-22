@@ -4,7 +4,7 @@ import android.app.Application
 import com.prashanth.sampleapp.dependencyInjection.*
 import timber.log.Timber
 
-class SampleApplication : Application() {
+open class SampleApplication : Application() {
 
     companion object {
         lateinit var component: AppDaggerGraph
